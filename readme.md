@@ -17,7 +17,7 @@ Trong version hiện tại, Các chức năng sau đã được triển khai:
 1. [Data and Database](#data-and-database)
 2. [Search Engine and Cache](#search-engine)
 3. [Recommender](#recommender)
-4. [Demo][#demo]
+4. [Recommender](#demo)
 
 <a name="data-and-database"></a>
 
