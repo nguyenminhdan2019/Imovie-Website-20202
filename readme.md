@@ -5,6 +5,8 @@ Trong version hiện tại, Các chức năng sau đã được triển khai:
 - **Search Engine** Sử dụng Inverted Index, LRU Cache 
 - Quản lý thành viên 
 - Quản lý phim
+- User (Login, Register, Active by Mail ,Forgot password)
+- User Profile (Wall, Edit Profile)
 - User Social ( Follow, Newfeed, Post, Reply, Like, Report, Notification)
 - Review Movie (Review, Rate, Reply review, Tagging movie)
 - Realtime function (Websocket, Ajax)
@@ -30,7 +32,7 @@ Có hơn 5000 thông tin bộ phim được public tại [movie dataset](https:/
 
 - **Search Index**: Xây dựng cấu trúc chỉ mục ngược để cho phép tìm kiếm toàn văn nhanh, tiện lợi
 - **Rank**: Các kết quả tìm kiếm được sắp xếp, phim sắp xếp theo lượt đánh giá, diễn viên theo tổng số phim tham gia
-- **Cache**: Dùng Cache để lưu lại các kết quả tìm kiếm , giúp timf kiếm nhanh hơn. Sử dụng LRU Cache để loại bỏ các tìm kiếm ít được sử dụng.
+- **Cache**: Dùng Cache để lưu lại các kết quả tìm kiếm , giúp tìm kiếm nhanh hơn. Sử dụng LRU Cache để loại bỏ các tìm kiếm ít được sử dụng.
 
 <a name="recommender"></a>
 
