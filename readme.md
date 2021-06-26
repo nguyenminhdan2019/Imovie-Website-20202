@@ -17,7 +17,7 @@ Trong version hiện tại, Các chức năng sau đã được triển khai:
 1. [Data and Database](#data-and-database)
 2. [Search Engine and Cache](#search-engine)
 3. [Recommender](#recommender)
-4. [Recommender](#demo)
+4. [Demo](#demo)
 
 <a name="data-and-database"></a>
 
@@ -51,6 +51,8 @@ Tôi sử dụng lọc cộng tác để gợi ý người dùng theo dõi nhữ
 Gợi ý tìm kiếm thông qua các phiên tìm kiếm của người dùng khác trong lịch sử, nếu tồn tại phiên tìm kiếm tương đồng và có kết quả, gợi ý cho người dùng.
 
 <a name="demo"></a>
+
+## Demo
 
 Dưới đây là các link demo chi tiết các nhóm chức năng :
 1. Nhóm chức năg Quản trị viên [Admin Site](https://www.youtube.com/watch?v=eV8ekPgnYhs)
