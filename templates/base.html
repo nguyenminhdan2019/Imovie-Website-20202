@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>IMovie</title>
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% comment %} {% block base_css %} {% endcomment %}
+    {% load static %}
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" id="bootstrap-css">
+    <link href="{% static "css/navbar.css" %}" rel="stylesheet">
+    <script src="{% static "js/jquery-1.10.2.min.js.download" %}"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script src="{% static "js/bootstrap.min.js.download" %}"></script>
+    <link href="{% static "css/font-awesome.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/bootstrap-social.css" %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/stars.css' %}"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style type="text/css"></style>
+    {% comment %} {% endblock %} {% endcomment %}
+    {% comment %} <script src="//cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script> {% endcomment %}
+
+    {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script> {% endcomment %}
+    {% comment %} <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script> {% endcomment %}
+    {% comment %} <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">   {% endcomment %}
+    {% comment %} <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> {% endcomment %}
+
+    {% comment %} <style type="text/css"></style> {% endcomment %}
+    {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'css/user-profile.css' %}"/> {% endcomment %}
+    {% comment %} f1f1f1<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet"> {% endcomment %}
+
+
+</head>
+
+{% load static %}
+<body style="background-color: #f1f1f1;">
+
+<nav class="navbar navbar-light" style="background-color:#e0e0eb" role="navigation" style="margin: 0">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+             <a class="navbar-brand" href="/"><span class=" 	glyphicon glyphicon-home"></span> Home</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li><a href="/movie/movie_all/1"><span class="glyphicon glyphicon-film"></span> Movies</a></li>
+                <li><a href="/movie/actor_all/1"><span class="glyphicon glyphicon-user"></span> Actors</a></li>
+                {% if user.is_authenticated %}
+                    <li class="dropdown mymovie">
+                            <a href="http://bootsnipp-env.elasticbeanstalk.com/iframe/DV3m4#" class="dropdown-toggle"
+                            data-toggle="dropdown">My Movie</a>
+                           <ul class="dropdown-menu" >
+                               <li> <a href="/movie/seen/">Seen List</a> </li>
+                               <li> <a href="/movie/expect/">Expect List</a> </li>
+                            </ul>
+                    </li>
+                {% endif %}
+
+            </ul>
+            <form class="navbar-form navbar-left" id="search--form" onsubmit="searchSubmit()">
+                {% csrf_token %}
+
+                <input type="text"  name="title" id="search-input" class="form-control"
+                       placeholder="Search Movies or Actors"
+                       onkeyup="start_timer()" size="55" autocomplete="off" required/>
+                <input type="submit" class="btn btn-info waves-effect waves-light m-b-5" name="search" value="Search"/>
+                {% if request.user.is_authenticated  %}
+                {% comment %} <div style="left:500px"><span>Showing results for</span><a style="color:red"> Money</a></div> {% endcomment %}
+                <div class="searchlistdiv"
+                     style="position:absolute;top:45px;left:380px;display:none;width: 500px;"
+                     aria-expanded="false">
+                    <div style="left:500px"><span>Showing results for</span><a style="color:red"> Money</a></div>
+                    
+                    <div class="search-movie"><h4><b> Movie </b> </h4> </div>
+                    <div class="search-actor"><h4><b> Actor </b> </h4> </div>
+                </div>
+                {% else %}
+                <div class="searchlistdiv"
+                     style="position:absolute;top:45px;left:300px;user-select:none;display:none;width: 500px;"
+                     aria-expanded="false">
+                    <div class="search-movie"><h4><b> Movie </b> </h4> </div>
+                    <div class="search-actor"><h4><b> Actor </b> </h4> </div>
+                </div>
+                {% endif %}
+
+            </form>
+
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-light" href="#" id="navbarDropdown" onclick = "seen_noti()" role="button" data-toggle="dropdown">
+                            {% if count_noti > 0 %}
+                                <i class="fa fa-bell" id="icon_noti" style="font-size:20px"> <span id='count_noti' class="badge">{{count_noti}}</span></i>
+                            {% else %}
+                                <i class="fa fa-bell" id="icon_noti" style="font-size:20px"> <span id='count_noti' class="badge"></span></i>
+                            {% endif %}
+
+
+                        </a>
+                        <style>
+                            .badge {
+                                position: relative;
+                                top: -10px;
+                                left: -13px;
+                                border: 1px solid black;
+                                border-radius: 50%;
+                            }
+
+                        </style>
+                        <ul class="dropdown-menu notibox">
+                            <div class = "notibox">
+                                <li class="head">
+                                    <div class="row" >
+                                        <div class="col-lg-12 col-sm-12 col-12">
+                                            <span> <b style="font-size: 16px"> Notifications </b>  </span>
+                                            <hr>
+                                        </div>
+                                    </div>
+                                </li>
+                                <div id = "new_noti_prepend" style="height:400px;overflow:scroll;">
+                                    {% for noti in notifications %}
+                                        <li class= "notification-box">
+                                            <div class="row">
+                                                <div class="col-lg-3 col-sm-3 col-3 text-center">
+                                                    <img src="{{noti.user2.profile.profile_picture.url}}" width =44 height =40 class="w-50 rounded-circle">
+                                                </div> 
+                                                <div class="col-lg-8 col-sm-8 col-8">  
+                                                    <a href = {{noti.get_link}}> 
+                                                        <div>
+                                                            <strong class="text-info" style="font-size: 14px;" >{{noti.user2.username}}</strong>
+                                                            <div style="font-size: 14px; color: black; text-align: left;">{{noti}} </div>
+                                                            <small style="font-size: 12px; color: black; text-align: center;" >{{noti.get_date}}</small>
+                                                        </div>   
+                                                    </a> 
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </div>
+                                <hr>
+                                <li class="footer text-center">
+                                    <span style="font-size: 16px" href=""> <b> View All </b> </span>
+                                </li>
+                            </div>
+                        </ul>
+                    </li>
+                    <li><a href="{% url 'comunity' %}"> Community</a></li>
+                    <li>
+                    <p class="navbar-text">
+                        Welcome, <a href="/user/detail/" > {{ user.username }} </a>
+                    </p>
+                    </li>
+                    <li style="align-items: center">
+                        <form method="post" action="/user/logout/">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-tumblr" style="margin-top:8px"  value="Logout">
+                        </form>
+                    </li>
+                {% else %}
+                    {% if message == 'login-error' %}
+                        <li><p class="navbar-text">{{ message }}</p></li>
+                    {% else %}
+                    <li><p class="navbar-text">Already have an account?</p></li>
+                    {% endif %}
+                    <li class="dropdown" >
+                        <a href="http://bootsnipp-env.elasticbeanstalk.com/iframe/DV3m4#" class="dropdown-toggle"
+                           data-toggle="dropdown"><b>Login</b> <span class="caret"></span></a>
+                        <ul id="login-dp" class="dropdown-menu" style="background-color:white">
+                            <li>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        Login via
+                                        <div class="social-buttons">
+                                            <button type="button" class="btn btn-fb" onclick="login()">
+                                                <span class="fa fa-facebook"></span> Facebook
+                                            </button>
+                                        </div>
+                                        Login with Account
+                                        <form class="form" role="form" method="post" action="/user/login/"
+                                              accept-charset="UTF-8" id="login-nav">
+                                            {% csrf_token %}
+                                             <p id="helptextLogin" style="color: red"  hidden>The username or password is incorrect.</p>
+                                            <div class="form-group">
+                                                <label class="sr-only" for="exampleInputEmail2">User Name</label>
+                                                <input name='username' class="form-control" id="exampleInputEmail2"
+                                                       placeholder="User Name">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="sr-only" for="exampleInputPassword2">Password</label>
+                                                <input name="password" type="password" class="form-control"
+                                                       id="exampleInputPassword2" placeholder="Password">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="hidden" name="path" value="{{ request.path }}">
+                                                <input onclick="sendLogin()" type="submit" class="btn btn-primary btn-block" value="Sign in"/>
+                                            </div>
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox"> Keep me Logged-in
+                                                </label>
+                                            </div>
+                                            <div>
+                                                <a href="/user/password_reset/"> <b> Forgot Password </b> </a>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="bottom text-center">
+                                        Register Now  ? <a href="/user/register/"><b>Join Us</b></a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<script>
+
+    function sendLogin(){
+                            event.preventDefault();
+                            var username = $('#exampleInputEmail2').val();
+                            var password = $('#exampleInputPassword2').val();
+                            $.ajax({
+                                url: "{% url 'send-login' %}",
+                                type: 'POST',
+                                datatype: 'json',
+                                processData: "application/json",
+                                data: {
+                                    username: username,
+                                    password: password,
+                                },
+                            }).done(function (data){
+                                if(data.mess=='error'){
+                                    $('#helptextLogin').show();
+                                }
+                                else{
+                                    console.log('login succsessful!');
+                                    location.reload();
+                                }
+                            });
+            }
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    window.fbAsyncInit = function () {
+        //'876304389878411',
+        FB.init({
+            appId: '1141656836335888',
+            cookie: true,
+            xfbml: true,  // parse social plugins on this page
+            version: 'v2.8' // use graph api version 2.8
+        });
+
+        FB.getLoginStatus(function (response) {
+        });
+
+    };
+    // o day la ket noi voi facebook...
+
+    (function (d, s, id) {
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) return;
+       js = d.createElement(s);
+       js.id = id;
+       js.src = "//connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    function logout() {
+        // Doan nay chua hieu lam
+        FB.logout(function () {
+        });
+        $.get("/user/logout/", function () {
+            location.replace('');
+            alert('Are you sure you want to Logout ');
+        });
+    };
+
+    function login() {
+        FB.login(function (response) {
+            if (response.status === 'connected') {
+                FB.api('/me', function (response) {
+                    $.post("/user/facebook/", {
+                        csrfmiddlewaretoken: getCookie('csrftoken'),
+                        username: response.name,
+                        password: "facebook",
+                    }, function () {
+                        console.log('okeeeee');
+                        location.reload();
+                    } //dont understand
+                    );
+                });
+            }
+        });
+    }
+
+    function searchSubmit() {
+        var action_src = '/movie/search/movie/' + document.getElementById("search-input").value + '/1';
+        document.getElementById('search--form').action = action_src;
+
+    }
+
+    $(".form-control").bind('blur', function () {
+        setTimeout(function () {
+            $(".searchlistdiv").hide();
+        }, 150);
+    });
+    var last_input_time = Date.now();
+    var list_search = [];
+    function start_timer() {
+        var this_input_time = Date.now();
+        last_input_time = this_input_time;
+        setTimeout(
+            function (this_input_time) {
+                if (last_input_time === this_input_time){
+                    list_search.push(document.getElementById('search-input').value);
+                    var list_search_clean = removeItemAll(list_search, '');
+                    if(list_search_clean.length > 4){
+                        // o day se gui du lieu search nay den server 
+                        //server nhan duoc lien tinh toan gui lai ket qua va no se search  theo
+                        // key word moi 
+                                $.ajax({
+                               url : "{% url 'get-search-value' %}",
+                               type: 'POST',
+                               datatype: 'json',
+                               processData: "application/json",
+                               data: {
+                                    user_id: '{{request.user.id}}',
+                                    content: list_search_clean.toString(),
+                                    keyup_now : document.getElementById('search-input').value,
+                                        }
+                                    }).done(function (data) {
+                                        console.log(data);
+                                        if (data.check_recommend === 'true') {
+                                            console.log('Recommend model ');
+                                            //$('.searchlistdiv').prepend()
+                                            showResult(data.key_recommend, data.key_recommend);
+
+                                        } else {
+                                            console.log('Normal model ');
+                                        showResult(document.getElementById('search-input').value, '');
+                                    }
+                                })
+                    }
+                    else
+                    {
+                        showResult(document.getElementById('search-input').value, '');
+                    }
+                }
+            }, 500, this_input_time);
+    };
+
+
+    function showResult(str, mess) {
+        console.log(str);
+        if (str.length === 0) {
+            $(".searchlistdiv").hide();
+            return;
+        }
+        var path = "/movie/search_suggest/" + str;
+        $.get(path, function (data) {
+            data = JSON.parse(data);
+            // turn of
+            //if (document.getElementById('search-input').value !== data.text)
+            //    return;
+            $(".search-movie").siblings().not(".search-actor").remove();
+            for (var i = data.movie.length - 1; i >= 0; i--) {
+                var img = "<img src='" + data.movie[i].poster + "' width='60' height='75'></img>";
+                var link = "<div class='suggest' onclick=\"location.href='/movie/movie_detail/"
+                    + data.movie[i].movieid + "'\">" + img + "<b>" + data.movie[i].title + "</b></div>";
+
+
+                $(".search-movie").after(link);
+            }
+            if (data.movie.length === 0)
+                $(".search-movie").after("<div class='no_suggest'><b>No suggestion!</b></div>")
+
+            for (var i = data.actor.length - 1; i >= 0; i--) {
+                var img = "<img src='" + data.actor[i].photo + "' width='60' height='75'></img>";
+                var link = "<div class='suggest' onclick=\"location.href='/movie/actor_detail/"
+                    + data.actor[i].actorid + "'\">" + img + "<b>" + data.actor[i].name + "</b></div>";
+                $(".search-actor").after(link)
+            }
+            if (data.actor.length === 0)
+                $(".search-actor").after("<div class='no_suggest'><b>No suggestion!</b></div>")
+            if (mess.length >0){
+            $(".search-movie").before('<div class="no_suggest">Showing results for <b style="color: red"> ' + mess+ "</b></div>")
+                
+            }
+            $(".searchlistdiv").show();
+        });
+    };
+
+
+
+    function removeItemAll(arr, value) {
+      var i = 0;
+      while (i < arr.length) {
+        if (arr[i] === value) {
+          arr.splice(i, 1);
+        } else {
+          ++i;
+        }
+      }
+      return arr;
+    };
+
+   function seen_noti(){
+       // seen all notification 
+       $.ajax({
+            url : "{% url 'seen-noti' %}",
+            type: 'POST',
+            datatype: 'json',
+            processData: "application/json",
+            data: {
+                user_id: '{{request.user.id}}',
+                content: 'seen',
+                    }
+                }).done(function (data) {
+                    //alert('seen');
+                })
+
+        //clear count noti
+        $('#count_noti').text('');
+   }
+
+
+</script>
+<script>
+        var roomName = '{{user.id}}';
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            var mess = JSON.parse(data.message);
+            console.log(mess);
+            if($('#count_noti').text().length > 0){
+                var count_noti = parseInt($('#count_noti').text()) + 1;
+                $('#count_noti').text(count_noti);
+            }
+            else{
+                var count_noti = 1;
+                $('#count_noti').text(count_noti);
+            }
+
+            
+            console.log(mess.sender_image);
+
+            $('#new_noti_prepend').prepend(
+                '<li class="notification-box" >'
+                    +'<div class="row">'
+                        +'<div class="col-lg-3 col-sm-3 col-3 text-center">'
+                            + '<img src="' + mess.sender_image + '"width =44 height =40 class="w-50 rounded-circle">'
+                        +'</div>'
+                        +'<div class="col-lg-8 col-sm-8 col-8">'    
+                            + '<a href ="' + mess.link  + '">'
+                                +'<div>'
+                                    +'<strong style="font-size: 14px; class="text-info">' + mess.sender + '</strong>'
+                                        + '<div style="font-size: 14px; color: black; text-align: left;">'+mess.noti+ '</div>'
+                                            + '<small style="font-size: 12px; color: black"' + mess.date + '</small>'
+                                            + '<small style="font-size: 12px; color: black; text-align: center;" >' + mess.date + '</small>'
+                                + '</div>'  
+                            + '</a>'  
+                        + '</div>'
+                    +'</div>'
+                +'</li>'
+            );
+        }; 
+
+  
+</script>
+{% block mainbody %}
+    {% load static %}
+        {% if user.is_authenticated  %}
+            <div style=" margin-left: 1%;">
+                <h4 class="title_text"><a href="#">Top Pick For You </a></h4>
+                {% comment %} <h3 class="title_text" style="color: #f5c518; line-height: 2.5rem; font-size: 2rem"><b>Popular Now </b></h3> {% endcomment %}
+                {% for movie in recommendation %} 
+                    <a href="/movie/movie_detail/{{ movie.movieid }}">
+                        <img id="poster" class="img-rounded" src="{{ movie.poster }}" width="125" height="180">
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div style=" margin-left: 1%;">
+            <h4 class="title_text"><a href="#">Popular now  </a></h4>
+
+            {% comment %} <h3 class="title_text" style="color: #f5c518"><b>Top Pick For You </b></h3> {% endcomment %}
+            {% for movie in popular %}
+                <a href="/movie/movie_detail/{{ movie.movieid }}">
+                    <img id="poster" class="img-rounded" src="{{ movie.poster }}" width="125" height="180">
+                </a>
+            {% endfor %}
+
+        </div>
+        <div style=" margin-left: 1%;">
+            <h4 class="title_text"><a href="#">Top IMDB </a></h4>
+            {% comment %} <h3 class="title_text" style="color: #f5c518"><b>Top IMDB </b></h3> {% endcomment %}
+            {% for movie in top_movie %}
+                <a href="/movie/movie_detail/{{ movie.movieid }}">
+                    <img id="poster" class="img-rounded" src="{{ movie.poster }}" width="125" height="180">
+                </a>
+            {% endfor %}
+
+        </div>
+        <div style=" margin-left: 1%;">
+            <h4 class="title_text"><a href="#">Top Action Movie </a></h4>
+            {% comment %} <h3 class="title_text" style="color: #f5c518"><b>Top Action Movie </b></h3> {% endcomment %}
+            {% for movie in action_movie %}
+                <a href="/movie/movie_detail/{{ movie.movieid }}">
+                    <img id="poster" class="img-rounded" src="{{ movie.poster }}" width="125" height="180">
+                </a>
+            {% endfor %}
+        </div>
+        <div style=" margin-left: 1%;">
+            <h4 class="title_text"><a href="#">Top Comedy Movie </a></h4>
+            {% comment %} <h3 class="title_text" style="color: #f5c518"><b>Top Comedy Movie </b></h3> {% endcomment %}
+            {% for movie in comedy_movie %}
+                <a href="/movie/movie_detail/{{ movie.movieid }}">
+                    <img id="poster" class="img-rounded" src="{{ movie.poster }}" width="125" height="180">
+                </a>
+            {% endfor %}
+        </div>
+       
+
+{% endblock %}
+
+</body>
+</html>
+

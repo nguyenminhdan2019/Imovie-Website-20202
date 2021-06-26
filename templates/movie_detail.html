@@ -1,0 +1,1146 @@
+{% extends "base.html" %}
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/user-profile.css' %}"/>
+
+{% block mainbody %}
+<style>
+    .edtCmt {
+        border-radius: 4px;
+        border: 1px solid #dadada;
+    }
+    {% comment %} Media feed control - Like and comments in review here  {% endcomment %}
+    .media-feed-control .btn {
+    opacity: 0.5 !important;
+    margin-top: -6px;
+    
+    }
+    .comment-block textarea + .media-feed-control {
+    margin-top: 0;
+    padding-top: 15px;
+    }
+    .media-feed-control {
+    margin-top: 1rem;
+    padding: 10px 10px 4px;
+    background-color: #F7F7FA;
+    }
+    .media-feed-control a {
+    opacity: 0.5;
+    color: #7e7e7e;
+    -webkit-transition: opacity 0.225s ease-in-out;
+    -moz-transition: opacity 0.225s ease-in-out;
+    -o-transition: opacity 0.225s ease-in-out;
+    transition: opacity 0.225s ease-in-out;
+    }
+    .media-feed-control a:not(:last-child) {
+    margin-right: 15px;
+    }
+    {% comment %} end here  {% endcomment %}
+    {% comment %} reply here      {% endcomment %}
+    .rrSend {
+    padding: 4px 8px;
+    border: 1px solid #7e7e7e;
+    background: #fff;
+    font-size: 12px;
+    color: #7e7e7e;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    margin-top: 2px;
+    }
+
+    .edtCmt textarea {
+        width: 100%;
+        border: none;
+        border-bottom: 1px solid #dadada;
+        border-radius: 4px 4px 0 0;
+        padding: 10px;
+        box-sizing: border-box;
+        line-height: 20px;
+    }
+
+    .wrap_comment .boxemotion {
+        overflow: visible;
+        position: relative;
+    }
+
+    .wrap_comment .motionsend {
+        display: block;
+        overflow: hidden;
+        padding: 5px;
+    }
+
+    .wrap_comment .cmt_right {
+        float: right;
+    }
+
+    .wrap_comment .motionsend a.btnSend {
+        padding: 5px 25px;
+        height: 30px;
+        font-size: 14px;
+        color: #fff;
+        text-transform: uppercase;
+        border: 1px solid #288ad6;
+        border-radius: 4px;
+        background: #288ad6;
+        margin: 0;
+    }
+
+    .wrap_comment .motionsend a {
+        padding: 0 12px 0 5px;
+        height: 20px;
+        color: #4a90e2;
+        font-size: 14px;
+        border-right: 1px solid #dadada;
+        display: inline-block;
+        line-height: 20px;
+    }
+</style>
+<div class="Layer" id="layer"></div>
+    <div class="container" id='container'>
+        {% if object %}
+            <div>
+                <div class="col-md-4">
+                    <div style="padding: 20px;">
+                        <img style="width: 100%;"
+                            src="{{object.poster}}"
+                            alt="Cannot load photo, sorry!">
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div style="padding: 20px;">
+                        <h1>{{object.title}}</h1>
+                        {% if request.user.is_authenticated %}
+                            <div class="rating">
+                                <input type="radio" name="rating" value="5" id="5">
+                                <label for="5">☆</label>
+                                <input type="radio" name="rating" value="4" id="4">
+                                <label for="4">☆</label>
+                                <input type="radio" name="rating" value="3" id="3">
+                                <label for="3">☆</label>
+                                <input type="radio" name="rating" value="2" id="2">
+                                <label for="2">☆</label>
+                                <input type="radio" name="rating" value="1" id="1">
+                                <label for="1">☆</label>
+                                <!-- rating function js --->
+                                    <script>
+                                        var rated = {{ object.rate }} ;
+                                        var movieid = '{{object.movieid}}';
+                                        console.log(movieid);
+                                        var username = '{{ user.username }}';
+                                        console.log(username);
+                                        user_rate_movie = {{ rate_score }};
+                                        if(user_rate_movie==0){
+                                            var stars = Math.floor(rated/2);
+                                            input_value = '#' + stars.toString();
+                                            console.log(input_value);
+                                            $(input_value).attr('checked', 'checked');
+                                        }
+                                        else{
+                                            input_value = '#' + user_rate_movie.toString();
+                                            console.log(input_value);
+                                            $(input_value).attr('checked', 'checked');
+                                        }
+
+                                        $("input[name='rating']").click(function() {
+                                            var radioValue = $("input[name='rating']:checked").val();
+                                            console.log(radioValue);
+                                            if (radioValue) {
+                                                console.log('send mess !');
+                                                $.ajax({
+                                                url : "{% url 'rate-movie' %}",
+                                                type: 'POST',
+                                                datatype: 'json',
+                                                processData: "application/json",
+                                                data: {
+                                                movieid: movieid,
+                                                type: 'rate',
+                                                username : username,
+                                                rate_score : radioValue,
+                                                    },
+                                                    //beforeSend:function (xhr,settings) {
+                                                    //console.log("{{ csrf_token }}");
+                                                    //xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                                                    //},
+                                                    }).done(function (data) {
+                                                    if (data.type == 'error') {
+                                                        alert('erorr !');
+                                                        Swal.fire('Any fool can use a computer')
+                                                        Swal.fire({
+                                                            icon: 'error',
+                                                            title: 'Oops...',
+                                                            text: 'Something went wrong!',
+                                                            footer: '<a href>Why do I have this issue?</a>'
+                                                        })
+                                                    } else {
+                                                        Swal.fire(
+                                                            'Good job!',
+                                                            'You rated this movie!',
+                                                            'success'
+                                                        );
+                                                        console.log(data);
+                                                    }
+                                                });
+                                            }
+                                        });
+
+                                    </script>
+                            </div>
+                        {% endif %}
+                        <!-- add seen , andd expect --->
+                        {% if  user.is_authenticated %}
+                            <button class="btn btn-warning" id="seen">Have seen</button>
+                            <button class="btn btn-danger" id="expect">Want to see</button>
+                            <b style="color: #f44336" id="message"></b>
+                            {% if  object.flag == 1 %}
+                            <script>
+                                $("#seen").css({"background-color": "#f44336", "color": "white"});
+                                $("#expect").css({"background-color": "white", "color": "black"});
+                            </script>
+                            {% endif %}
+                            {% if  object.flag == 2 %}
+                                <script>
+                                    $("#expect").css({"background-color": "#f44336", "color": "white"});
+                                    $("#seen").css({"background-color": "white", "color": "black"});
+                                </script>
+                            {% endif %}
+                        {% endif %}
+                         <!-- function for add to my list --->
+                        <script>
+                                $(document).ready(function () {
+                                    $("#seen").click(function () {
+                                        $.get("/movie/add_seen/{{object.movieid}}", function (msg) {
+                                            if (msg == "1") {
+                                                $("#seen").css({"background-color": "#f44336", "color": "white"});
+                                                $("#expect").css({"background-color": "white", "color": "black"});
+                                                $("#message").html("Added to Seen list!").fadeIn("fast").fadeOut("slow");
+                                            }
+                                            if (msg == "0") {
+                                                $("#seen").css({"background-color": "white", "color": "black"});
+                                                $("#message").html("Deleted from Seen list!").fadeIn("fast").fadeOut("slow");
+                                            }
+                                        });
+                                    });
+                                });
+                        </script>
+                
+                        <script>
+                            $(document).ready(function () {
+                                $("#expect").click(function () {
+                                    $.get("/movie/add_expect/{{ object.movieid }}", function (msg) {
+                                        if (msg == "2") {
+                                            $("#expect").css({"background-color": "#f44336", "color": "white"});
+                                            $("#seen").css({"background-color": "white", "color": "black"});
+                                            $("#message").html("Added to Wish list!").fadeIn("fast").fadeOut("slow");
+                                        }
+                                        if (msg == "0") {
+                                            $("#expect").css({"background-color": "white", "color": "black"});
+                                            $("#message").html("Deleted from Wish list!").fadeIn("fast").fadeOut("slow");
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                    
+                        <!-- Detail movie box  --->       
+                        <div class="movie-detail box">
+                        <br>
+                        <p><b>Year:</b> {{ object.year }}</p>
+                        <p><b>Genres:</b> {{ object.genres }}</p>
+                        <p><b>Movie Length:</b> {{ object.length }} min</p>
+                        <p><b>IMDB:</b> {{ object.rate }}</p>
+                        <p><a href="http://www.imdb.com/title/{{ object.movieid }}" target="_blank">See in IMDB <span
+                                class="glyphicon glyphicon-new-window"></span></a></p>
+                        <span class="click_Show"> <button class="button_trailer">
+                        <span class="glyphicon glyphicon-play-circle"></span> Trailer</button></span>
+                        <br>
+                        <div id="TrailerWindow" style="position: fixed;">
+                            <div id="title">{{ object.title }}
+                                <button type="button" class="close" aria-label="Close">
+                                    <span aria-hidden="true">x</span>
+                                </button>
+                            </div>
+                            <div id="videoControl">
+                                <iframe width="560" height="500" src="https://www.youtube.com/embed/{{ object.youtubeid }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+
+                        <p id="summary"><b>Plot Summary: </b>"{{ object.plot }}"</p>
+                        <!-- detail actor here -->
+                        <p><b>Main actors : </b></p>
+                        <style>
+                            .actor-image {
+                                height: 128px;
+                                width: 100%;
+                                background-size: cover;
+                                background-repeat: no-repeat;
+                            }
+
+                            #list_actor_carousel li {
+                                display: inline-block !important;
+                                float: none !important;
+                                margin-left: 0px;
+                            }
+
+                            #list_actor_carousel .actor-profile-item {
+                                width: 92px;
+                                height: 165px;
+                                margin-left: 0px;
+                                margin-right: 15px;
+                                display: inline-block;
+                                cursor: pointer;
+                            }
+
+                            .actor-name-a {
+                                display: block;
+                                font-size: 12px;
+                                padding: 5px 0 0;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                                width: 100%;
+                            }
+
+                            .character {
+                                font-size: 12px;
+                                color: #999;
+                            }
+                        </style>
+
+                        <ul id="list_actor_carousel" style="padding-left: 0px;">
+                            {% for item in items %}
+                                <li><a href="/movie/actor_detail/{{ item.actorid }}" class="actor-profile-item">
+                                    <div class="actor-image"
+                                        style="background-image:url('{{item.photo}}')" ></div>
+                                    <div class="actor-name">{{item.get_simple_name}}</div>
+                                </a></li>
+                            {% endfor %}
+                        </ul>
+                        <br>
+                        <br>
+                        <style>
+                            where-to-watch__header{text-transform:capitalize}
+                            .where-to-watch{margin-bottom:20px}
+                            @media(min-width:768px)
+                            {.where-to-watch__body{margin:25px 0 0;padding:0}}
+                            .panel-rt{border:none}
+                            .where-to-watch__body{margin:25px 0 0;padding:0}
+                            .affiliates__list{display:flex;overflow-x:scroll;padding:20px 0;clear:both}
+                            .affiliates__list::after{content:"";margin-right:6px;border:1px solid transparent}
+                            @media (min-width:768px)
+                            {#showMoreWhereToWatch{display:block}
+                            .affiliates__list{flex-wrap:nowrap;overflow:hidden;padding:5px 0}
+                            .affiliates__list.show-all{flex-wrap:wrap}}
+                            .affiliate__item{min-width:136px;margin:0 0 0 20px;border-radius:12px;box-shadow:0 2px 8px 0 rgba(42,44,50,.16);background-color:#fff;text-align:center}
+                            .affiliate__item:last-child{margin-right:20px}.affiliate__link{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:20px}
+                            .affiliate-icon{width:80px;height:40px}
+                            .affiliate__text{margin:32px 0 0;font-family:'Franklin Gothic FS Med','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.29;letter-spacing:.22px;color:#2a2c32}
+                            @media (min-width:768px)
+                            {.affiliate__item{min-width:calc(33.3% - 16px);margin:0 8px 16px}
+                            .affiliate__item:last-child{margin-right:8px}.affiliate__link{flex-direction:row;align-items:center}
+                            .affiliate__text{margin:0}}.affiliate__link--veneer{align-items:flex-start;padding:16px;height:100%}
+                            .affiliate__text--veneer{margin:20px 0 0;text-align:left}
+                            @media (min-width:768px){.affiliate__link--veneer{align-items:center}
+                            .affiliate__text--veneer{margin:0;max-width:96px;text-align:right}}
+                            .score-details-circle__icon{display:block;width:24px;height:24px}
+
+
+                            .affiliate-icon{width:80px;height:40px}
+                            .affiliate__text{margin:32px 0 0;font-family:'Franklin Gothic FS Med','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.29;letter-spacing:.22px;color:#2a2c32}
+                            @media (min-width:768px){.affiliate__item{min-width:calc(33.3% - 16px);margin:0 8px 16px}.affiliate__item:last-child{margin-right:8px}.affiliate__link{flex-direction:row;align-items:center}
+                            .affiliate__text{margin:0}}.affiliate__link--veneer{align-items:flex-start;padding:16px;height:100%}
+                            .affiliate__text--veneer{margin:20px 0 0;text-align:left}
+                            @media (min-width:768px){.affiliate__link--veneer{align-items:center}
+                            .affiliate__text--veneer{margin:0;max-width:96px;text-align:right}}
+                        </style>
+                        <section id="where-to-watch" class="where-to-watch panel-rt panel-box" data-qa="section:where-to-watch">
+                            <h4>Where to watch: </h4>
+                                <div class="where-to-watch__body">
+                                    <ul class="affiliates__list js-affiliates-list">
+        
+                                        <li class="affiliate__item" data-qa="affiliate-item" style ="list-style:none;">
+                                            <a class="affiliate__link affiliate__link--veneer js-affiliate-link" data-affiliate="fandango-now" target="blank" href="https://www.primevideo.com/" data-qa="affiliate-item-lnk">
+                                            <img style="width:80px;height:40px" src="https://www.rottentomatoes.com/assets/pizza-pie/images/affiliates/amazon_prime_video.aea370299cd.svg" name="fandango-now" alignicon="left center" role="image" style="--align-icon-x:left; --align-icon-y:center;">
+                                            <p class="affiliate__text affiliate__text--veneer no-price"><b>Rent/buy</b></p>
+                                            </a>
+                                        </li>
+        
+                                        <li class="affiliate__item" data-qa="affiliate-item" style ="list-style:none;">
+                                            <a class="affiliate__link affiliate__link--veneer js-affiliate-link" data-affiliate="vudu" target="blank" href="https://www.netflix.com/vn/" data-qa="affiliate-item-lnk">
+                                            <img style="width:80px;height:40px" src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/227_Netflix_logo-512.png" name="fandango-now" alignicon="left center" role="image" style="--align-icon-x:left; --align-icon-y:center;">
+                                            <p class="affiliate__text affiliate__text--veneer show-price hide">Rent/buy from $2.99</p>
+                                            <p class="affiliate__text affiliate__text--veneer no-price"> <b>Rent/buy</b></p>
+                                            </a>
+                                        </li>
+        
+                                        <li class="affiliate__item" data-qa="affiliate-item" style ="list-style:none;">
+                                            <a class="affiliate__link affiliate__link--veneer js-affiliate-link" data-affiliate="amazon-prime-video-us" target="blank" href="" data-qa="affiliate-item-lnk">
+                                            <img style="width:80px;height:40px" src="https://www.rottentomatoes.com/assets/pizza-pie/images/affiliates/apple_tv.da7a28db8f5.svg" name="fandango-now" alignicon="left center" role="image" style="--align-icon-x:left; --align-icon-y:center;">
+                                            <p class="affiliate__text affiliate__text--veneer show-price hide">Rent/buy from $2.99</p>
+                                            <p class="affiliate__text affiliate__text--veneer no-price"> <b>Rent/buy</b></p>
+                                            </a>
+                                        </li>
+        
+                                    </ul>
+                                </div>
+                        </section>
+                       
+                        
+                        <!-- end  detail actor here -->
+                        <!-- add tag movie here -->
+                        {% if request.user.is_authenticated %}
+                            <h4>Your Tag: </h4>
+                            <div class="form-group has-success has-feedback">
+                                    <label class="control-label" style="color: black" ></label>
+                                    <div class="input-group" style ="width:35%" >
+                                        <label for="inputGroupSuccess1"></label>
+                                        <input id= "nameTag" type="text" class="form-control" placeholder ="add tag for movie ..." aria-describedby="inputGroupSuccess1Status">
+                                        <span onclick="addTag(1)" style="cursor: pointer" class="input-group-addon">+</span>
+                                    </div>
+                                </div>
+                            <!-- function add tag here -->
+                            <div class="user_tag_here" id="list_actor_carousel" style="padding-left: 0px;">
+                            {% for tag in users_tags %} 
+                                <li style="max-width:30%" ><div class="input-group" id="{{tag.id}}" >
+                                    <span  style="cursor: pointer; background-color: #def0d8" class="input-group-addon">x{{tag.count_tag}}</span>
+                                    <button class="form-control" id="inputGroupSuccess1" aria-describedby="inputGroupSuccess1Status">{{tag.tags}}</button>
+                                    <span onclick="deleteTag({{tag.id}})"  style="cursor: pointer" class="input-group-addon">-</span>
+                                </div></li>
+                            {% endfor %}
+                            </div>
+                            <!-- function add tag by user here -->
+                            <script>
+                                function addTag(key){
+                                    var movieid = '{{object.movieid}}';
+                                    var username = '{{ user.username }}';
+                                    if(key==1){
+                                        var nameTag = $('#nameTag').val();
+                                    }
+                                    else{
+                                        var nameTag = key;
+                                    }
+                                    console.log(nameTag);
+                                    //send ajax
+                                    $.ajax({
+                                        url : "{% url 'add-tag' %}",
+                                        type: 'POST',
+                                        datatype: 'json',
+                                        processData: "application/json",
+                                        data: {
+                                        movieid: movieid,
+                                        type: 'add-tag',
+                                        username : username,
+                                        tag : nameTag
+                                            }
+                                            }).done(function (data) {
+                                        if (data.mess == 'error') {
+                                            Swal.fire('You have tagged this movie already')
+                                        } else {
+                                            //add count if have tag in comunitys 
+                                            $('#nameTag').val('');
+                                            $('.user_tag_here').prepend(
+                                                                '<li style="max-width:30%" ><div class="input-group" id="' + data.id + '" >' +
+                                                            '<span  style="cursor: pointer; background-color: #def0d8" class="input-group-addon">x' + data.count + '</span>'+
+                                                            '<button class="form-control" id="inputGroupSuccess1" aria-describedby="inputGroupSuccess1Status">' + data.tags + '</button>'+
+                                                            '<span onclick="deleteTag(' + data.id + ')"  style="cursor: pointer" class="input-group-addon">-</span>'+
+                                                        '</div></li>'
+                                                        );
+                                            // add comunity tags 
+                                            if(data.newTag == 1){
+                                                // add comunity tagname and count 
+                                                $('.comunity_tags_here').prepend(
+                                                    '<li style ="width:30% "><div class="input-group" name="' + data.tags + '" >' +
+                                                    '<span  style="cursor: pointer; background-color: #def0d8" class="input-group-addon">x' + data.new_count + '</span>'+
+                                                    '<button class="form-control" id="inputGroupSuccess1" aria-describedby="inputGroupSuccess1Status">' +data.tags +'</button>'+
+                                                    '<span style="cursor: pointer" class="input-group-addon">+</span>'+
+                                                    '</div></li>'
+                                                            );
+                                            }
+                                            else{
+                                                if(data.newTag==0){
+                                                    //add count to comunity tag if tagName exits 
+                                                    var id_count = 'x' + data.tags ;
+                                                    var count = 'x' + data.count.toString();
+                                                    console.log(count);
+                                                    console.log(id_count);
+                                                    var count_group = document.getElementsByName(id_count);
+                                                    console.log(count_group);
+                                                    $(count_group).text(count);
+                                                }
+                                            } 
+                                        }
+                                    })
+                                };
+                                function deleteTag(tagID){
+                                    var id = '#'+ tagID.toString();
+                                    var name = "tag" + 
+                                    $(id).hide();
+                                     $.ajax({
+                                        url : "{% url 'delete-tag' %}",
+                                        type: 'POST',
+                                        datatype: 'json',
+                                        processData: "application/json",
+                                        data: {
+                                        type: 'delete-tag',
+                                        tagID : tagID,
+                                            }
+                                            }).done(function (data) {
+                                                console.log(data);
+                                                if(data.deleteComunity == 1){
+                                                    // clear comunity
+                                                    var comunity_group = document.getElementsByName(data.name_group);
+                                                    console.log(comunity_group);
+                                                    $(comunity_group).hide();
+
+                                                }
+                                                else{
+                                                    if(data.deleteComunity == 0){
+                                                        // change x count 
+                                                        var count_group = document.getElementsByName(data.id_count);
+                                                        console.log(count_group);
+                                                        $(count_group).text(data.count);
+
+
+                                                    }
+                                                }
+                                        
+                                                 
+                                            })
+                                 }
+
+                            </script>
+                            <!-- end tag by user function -->
+
+                            <h4>Tags Comunity : </h4>
+                            <div class="comunity_tags_here" id="list_actor_carousel" style="padding-left: 0px;">
+                                {% for tagName, countTag in comunity_tags.items %}
+                                    <li style ="width:30%; height : 70% "><div class="input-group" id="tag{{tagName}}" name="{{tagName}}" >
+                                        <span name="x{{tagName}}" style="cursor: pointer; background-color:#def0d8" class="input-group-addon">x{{countTag}}</span>
+                                        <button class="form-control" id="inputGroupSuccess1" aria-describedby="inputGroupSuccess1Status"> {{tagName}}</button>
+                                        <span onclick="addTag('{{tagName}}')" style="cursor: pointer" class="input-group-addon">+</span>
+                                    </div></li>
+                                {% endfor %}
+                            </div>
+                            <br>
+                        {% endif %}
+
+
+                        <h4>Review for {{object.title}}</h4>
+                        {% if review_form_flag == 1 %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="wrap_comment">
+                                        <div class="edtCmt">
+                                            <textarea class="dropfirst textarea" id="review-textarea" name="content" style="overflow-y: visible;"></textarea>
+                                                    <div class="boxemotion" style="padding-bottom: 5px;">
+                                                        <div class="motionsend"><input id="hdFileCmtUpload" type="file" class="hide"
+                                                                            accept="image/x-png, image/gif, image/jpeg"> 
+                                                            <div class="cmt_right"><a class="btnSend" href="#" id="btnSendCmt"
+                                                                            onclick="review();">Send</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <br>
+                        <div class="">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="rating-block">
+                                        <h5>Average user rating</h5>
+                                        <!-- rating averange  movie user -->
+                                        <h2 class="bold padding-bottom-7" id="rate_all_for_movie">  <small>/ 5</small></h2>
+                                        {% if rate_average == 5  %}
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                        {% endif %}
+                                        {% if rate_average == 4  %}
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                             <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                           
+                                            <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                        {% endif %}
+                                        {% if rate_average == 3  %}
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                             <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            
+                                            <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                        {% endif %}
+                                        {% if rate_average == 2  %}
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                             <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                             <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                        {% endif %}
+                                        {% if rate_average == 1  %}
+                                            <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                             <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                             <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+                                                <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Rating breakdown</h5>
+                                    <div class="pull-left">
+                                        <div class="pull-left" style="width:35px; line-height:1;">
+                                            <div style="height:9px; margin:5px 0;">5 <span class="glyphicon glyphicon-star"></span></div>
+                                        </div>
+                                        <div class="pull-left" style="width:180px;">
+                                            <div class="progress" style="height:9px; margin:8px 0;">
+                                                <div id="count_rate_sum_5" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="5"
+                                                    aria-valuemin="0" aria-valuemax="5" style="width: 80%">
+                                                    <span class="sr-only">100%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="count_5_star" class="pull-right" style="margin-left:10px;">1</div>
+                                    </div>
+                                    <div class="pull-left">
+                                        <div class="pull-left" style="width:35px; line-height:1;">
+                                            <div style="height:9px; margin:5px 0;">4 <span class="glyphicon glyphicon-star"></span></div>
+                                        </div>
+                                        <div class="pull-left" style="width:180px;">
+                                            <div class="progress" style="height:9px; margin:8px 0;">
+                                                <div id="count_rate_sum_4" class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="4"
+                                                    aria-valuemin="0" aria-valuemax="5" style="width: 0%">
+                                                    <span class="sr-only">80% Complete (danger)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="count_4_star" class="pull-right" style="margin-left:10px;">1</div>
+                                    </div>
+                                    <div class="pull-left">
+                                        <div class="pull-left" style="width:35px; line-height:1;">
+                                            <div style="height:9px; margin:5px 0;">3 <span class="glyphicon glyphicon-star"></span></div>
+                                        </div>
+                                        <div class="pull-left" style="width:180px;">
+                                            <div class="progress" style="height:9px; margin:8px 0;">
+                                                <div id="count_rate_sum_3" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="3"
+                                                    aria-valuemin="0" aria-valuemax="5" style="width: 60%">
+                                                    <span class="sr-only">80% Complete (danger)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="count_3_star" class="pull-right" style="margin-left:10px;">0</div>
+                                    </div>
+                                    
+                                    <div class="pull-left">
+                                        <div class="pull-left" style="width:35px; line-height:1;">
+                                            <div style="height:9px; margin:5px 0;">2 <span class="glyphicon glyphicon-star"></span></div>
+                                        </div>
+                                        <div class="pull-left" style="width:180px;">
+                                            <div class="progress" style="height:9px; margin:8px 0;">
+                                                <div id="count_rate_sum_2" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="3"
+                                                    aria-valuemin="0" aria-valuemax="5" style="width: 0%">
+                                                    <span class="sr-only">80% Complete (danger)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="count_2_star" class="pull-right" style="margin-left:10px;">0</div>
+                                    </div>
+                                    
+                                    <div class="pull-left">
+                                        <div class="pull-left" style="width:35px; line-height:1;">
+                                            <div style="height:9px; margin:5px 0;">1 <span class="glyphicon glyphicon-star"></span></div>
+                                        </div>
+                                        <div class="pull-left" style="width:180px;">
+                                            <div class="progress" style="height:9px; margin:8px 0;">
+                                                <div id="count_rate_sum_1" class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="3"
+                                                    aria-valuemin="0" aria-valuemax="5" style="width: 0%">
+                                                    <span class="sr-only">80% Complete (danger)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="count_1_star" class="pull-right" style="margin-left:10px;">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <hr/>
+                                    <div class="review-block">
+                                        <div class="row">
+                                        {% for review in reviews %}
+                                            <div class="col-md-3">
+                                                <img src="{{review.user.profile.profile_picture.url}}" width ="60px" height ="60px" class="img-rounded">
+                                                {% if request.user.is_authenticated %}
+                                                    <div class="review-block-name"><a href="{{review.user.profile.get_absolute_url}}">{{review.user.username}}</a></div>
+                                                {% else %}
+                                                    <div class="review-block-name"><a>{{review.user.username}}</a></div>
+                                                {% endif %}
+                                                <div class="review-block-date">{{review.get_date}}</div>
+                                            </div>
+                                            <div class="col-md-9">
+                                                <div class="review-block-rate">
+                                                    {% if review.rate > 0 %}
+                                                        {% if review.rate > 4 %}
+                                                            {% for i in '01234'|make_list  %}
+                                                                <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+                                                                    <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                </button>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            {% if review.rate > 3 %}
+                                                                {% for i in '0123'|make_list %}
+                                                                    <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+                                                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                    </button>
+                                                                {% endfor %}
+                                                                    <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                    </button>
+                                                            {% else %}
+                                                                {% if review.rate > 2 %}
+                                                                    {% for i in '012'|make_list %}
+                                                                    <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+                                                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                    </button>
+                                                                    {% endfor %}
+                                                                    <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                        <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                    </button>
+                                                                {% else %}
+                                                                    {% if review.rate > 1 %}
+                                                                        <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                    {% else %}
+                                                                        <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+                                                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+                                                                        </button>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                                    {% if review.rate == 5 %}
+                                                    <div class="review-block-title"><b>Excellent</b></div>
+                                                    {% endif %}
+                                                    {% if review.rate == 4 %}
+                                                    <div class="review-block-title"><b>Very good</b></div>
+                                                    {% endif %}
+                                                    {% if review.rate == 3 %}
+                                                    <div class="review-block-title"><b>Good</b></div>
+                                                    {% endif %}
+                                                    {% if review.rate == 2 %}
+                                                    <div class="review-block-title"><b>Bad</b></div>
+                                                    {% endif %}
+                                                    {% if review.rate == 1 %}
+                                                    <div class="review-block-title"><b>Very Bad</b></div>
+                                                    {% endif %}
+
+                                                    <div class="review-block-description">{{review.review}}
+                                                </div>
+                                                {% if request.user.is_authenticated %}
+                                                    <div class="media-feed-control">
+                                                        <a href="" id="likeButton" style="color:black">
+                                                            <input type="hidden" name="likePostID" value="{{ review.id }}">
+                                                            {% if  review.total_likes > 0 %}
+                                                                    <i class="batch-icon batch-icon-heart-full" ></i> Like <span id="count-likes{{ review.id }}"> ({{review.total_likes}}) </span>
+                                                            {% else %}
+                                                                <i class="batch-icon batch-icon-heart-full" ></i> Like <span id="count-likes{{ review.id }}"></span>
+                                                            {% endif %}
+                                                        </a>
+                                                        <a onclick="show_block_reply({{review.id}})"  style="color:black" href="#">
+                                                            {% if review.total_reply > 0  %}
+                                                                <i class="batch-icon batch-icon-speech-bubble-left-tip"></i> Comment <span id="count-comments{{ review.id }}" >({{review.total_reply}}) </span>
+                                                            {% else %}
+                                                                <i class="batch-icon batch-icon-speech-bubble-left-tip"></i> Comment <span id="count-comments{{ review.id }}"> </span>
+                                                            {% endif %}
+                                                        </a>
+                                                    </div>
+                                                    <div hidden class="media-body-reply-block" id="block-reply-{{review.id}}" >
+                                                        <div class="media mt-4" id="list_reply_review{{review.id}}">
+                                                            {% for reply in review.get_all_reply %}
+                                                                <div class="media-body" style="padding-left: 10px ; border: 5px">
+                                                                    <div class="media-title mt-0 mb-1">
+                                                                        <a href="{{ reply.user.profile.get_absolute_url }}">{{ reply.user.username }}</a> <small> {{reply.get_date}}</small>
+                                                                    </div>
+                                                                    <div class ="reply-content" >
+                                                                        {{reply.content}}
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                        
+                                                    
+                                                        <div class="comment-reply-block mt-4">
+                                                            <form method="POST" class="form-reply" enctype="multipart/form-data">
+                                                                <input type="hidden" class="replyID" name="postID" value="{{ review.id }}">
+                                                                <input style="height: 50%"  class="form-control comment-reply-textarea" name="reply-content" rows="2" placeholder="reply review here..."> </input>
+                                                                <button style="float: right;"  type="submit" class="rrSend"> Reply </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                            </div>
+                                            <div>
+                                                <p>  
+                                                <hr style="width:50%;text-align:left;margin-left:0">
+                                                <hr style="width:50%;text-align:left;margin-left:0">
+
+                                                </p>
+                                            </div>
+                                        {% endfor %}
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                function layersize() {
+                    document.getElementById("layer").style.width = document.documentElement.scrollWidth + "px";
+                    document.getElementById("layer").style.height = document.documentElement.scrollHeight + "px";
+                }
+
+                $(".click_Show").click(function () {
+                    layersize();
+                    $(".Layer").show();//show layer
+                    $("#TrailerWindow").show();//show videoWindow
+                    tm();
+                });
+
+                $(window).resize(function () {
+                    layersize();
+                    tm();
+                });
+
+                function tm() {
+                    var _left = (document.documentElement.clientWidth - $("#TrailerWindow").width()) / 2;//Get distance of left
+                    var _top = (document.documentElement.clientHeight) * 0.15;//Get distance of top
+                    $("#TrailerWindow").css({left: _left, top: _top});
+                }
+
+                $("button.close").click(function () {
+                    $('video').trigger('pause');
+                    $("#TrailerWindow").hide();//hide
+                    $(".Layer").hide();//hide
+                });
+            </script>
+        {% endif %}
+    </div>
+<script>
+
+    function get_breaking_rate(){
+        var movieid = '{{object.movieid}}';
+        console.log(movieid);
+        $.ajax({
+                    url: "{% url 'get_data_rate' %}",
+                    type: 'POST',
+                    datatype: 'json',
+                    processData: "application/json",
+                    data: {
+                        movieid: movieid,
+                    },
+                    
+                }).done(function (data){
+                    console.log(data.mess);
+                    if(data.mess=='oke'){
+                        $('#count_5_star').text(data.count_rate_5);
+                        var count_rate_5_percent = data.count_rate_5_percent;
+                        var count_rate_5_percent_width = count_rate_5_percent + '%';
+                        console.log(count_rate_5_percent_width); 
+                        $('#count_rate_sum_5').css("width", count_rate_5_percent_width);
+
+                        $('#count_4_star').text(data.count_rate_4);
+                        var count_rate_4_percent = data.count_rate_4_percent;
+                        var count_rate_4_percent_width = count_rate_4_percent + '%';
+                        console.log(count_rate_4_percent_width); 
+                        $('#count_rate_sum_4').css("width", count_rate_4_percent_width);
+
+                        $('#count_3_star').text(data.count_rate_3);
+                        var count_rate_3_percent = data.count_rate_3_percent;
+                        var count_rate_3_percent_width = count_rate_3_percent + '%';
+                        console.log(count_rate_3_percent_width); 
+                        $('#count_rate_sum_3').css("width", count_rate_3_percent_width);
+
+                        $('#count_2_star').text(data.count_rate_2);
+                        var count_rate_2_percent = data.count_rate_2_percent;
+                        var count_rate_2_percent_width = count_rate_2_percent + '%';
+                        console.log(count_rate_2_percent_width); 
+
+                        $('#count_rate_sum_2').css("width", count_rate_2_percent_width);
+
+                        $('#count_1_star').text(data.count_rate_1);
+                        var count_rate_1_percent = data.count_rate_1_percent;
+                        var count_rate_1_percent_width = count_rate_1_percent + '%';
+                        console.log(count_rate_1_percent_width); 
+
+                        $('#count_rate_sum_1').css("width", count_rate_1_percent_width);
+
+                        $('#rate_all_for_movie').text(data.rate_all_for_movie +'/5');
+
+                    }
+                    else{
+                        console.log('heelo world');
+                        $('#count_1_star').text(0);
+                        $('#count_2_star').text(0);
+                        $('#count_3_star').text(0);
+                        $('#count_4_star').text(0);
+                        $('#count_5_star').text(0);
+
+                        $('#count_rate_sum_5').css("width", "0%");
+                        $('#count_rate_sum_4').css("width", "0%");
+                        $('#count_rate_sum_3').css("width", "0%");
+                        $('#count_rate_sum_2').css("width", "0%");
+                        $('#count_rate_sum_1').css("width", "0%");
+                        $('#rate_all_for_movie').text('0/0');
+
+                    }
+                    
+
+                
+
+
+                });
+    };
+
+    get_breaking_rate();
+
+
+    function show_block_reply(post_id){
+                event.preventDefault();
+                var id = '#block-reply-' + post_id;
+                $(id).toggle();
+            }
+
+    $(document).on('submit', '.form-reply', function (event){
+                    event.preventDefault();
+                    //remember the form element
+                    var $form = $(this);
+
+                    // get dom by name
+                    var $content = $form.find("input[name='reply-content']");
+                    // get dome by id
+                    var $postID = $form.find(".postID");
+
+                    var content =  $form.find("input[name='reply-content']").val();
+                    var postID =   $form.find("input[name='postID']").val();
+
+                    console.log(content);
+                    console.log(postID);
+
+                    // now do ajax
+                    $.ajax({
+                    url: "{% url 'reply-review' %}",
+                    type: 'POST',
+                    datatype: 'json',
+                    processData: "application/json",
+                    data: {
+                        content: content,
+                        postID: postID,
+                        type: 'reply',
+                    },
+                    
+                }).done(function (data){
+                    $content.val('');
+                    console.log(data);
+                    var id = '#list_reply_review' + data.review_id;
+                    $(id).prepend(
+
+                        '<div class="media-body" style="padding-left: 10px" >'+
+                        '<div class="media-title mt-0 mb-1">' +
+                        '<a href="' + data.send_user_url + '">'+ data.send_user + '</a> <small> just now</small>'+
+                        '</div>' +
+                        '<div class ="reply-content" >'+
+                        data.content +
+                        '</div>' +
+                        '</div>')
+                        var countCommentID = '#count-comments' + data.review_id;
+                        $(countCommentID).html('(' +data.count_reply +')');
+
+                    });
+                });
+
+    function review(){
+            var content = $('#review-textarea').val();
+            var movieid = '{{object.movieid}}';
+            var username = '{{ user.username }}';
+                console.log(content);
+
+                if (content == '') {
+                    Swal.fire('Comments cannot be empty');
+                    return
+                }
+                $.ajax({
+                    type: "POST",
+                    // bo sung dau gach cheo moi duoc
+                    url: "{% url 'review-movie' %}",
+                    data: {content: content, type : 'review', movieid: movieid, 'username':username},
+                    processData: "application/json",
+                    dataType: "json",
+
+                }).done(function (data) {
+                    console.log(data);
+                    location.reload();
+
+                });
+
+            };
+    $(document).on('click', '#likeButton', function (event) {
+                    event.preventDefault();
+                    var postID  = $(this).find("input[name='likePostID']").val();
+                    var likeID = '#count-likes' + postID
+
+                    $.ajax({
+                        url : "{% url 'like-review'%}",
+                        type: 'POST',
+                        datatype: 'json',
+                        processData: "application/json",
+                        data: {
+                        postID: postID,
+                        type: 'like',
+                        status : 'True',
+                    },
+                }).done(function (data) {
+                        if(data.type==-1){
+                            alert('erorr !');
+                        }
+                        else {
+                            // why with 1 id , count not run !!
+                            console.log(data.count_likes);
+                            if(data.count_likes == 0){
+                                $(likeID).text('');
+                            }
+                            else{
+                                $(likeID).text('('+data.count_likes+')');
+                            }
+                        }
+
+
+                    });
+    });
+
+</script>
+<script type="text/javascript">
+            function layersize() {
+                document.getElementById("layer").style.width = document.documentElement.scrollWidth + "px";
+                document.getElementById("layer").style.height = document.documentElement.scrollHeight + "px";
+            }
+
+            $(".click_Show").click(function () {
+                layersize();
+                $(".Layer").show();//show layer
+                $("#TrailerWindow").show();//show videoWindow
+                tm();
+            });
+
+            $(window).resize(function () {
+                layersize();
+                tm();
+            });
+
+            function tm() {
+                var _left = (document.documentElement.clientWidth - $("#TrailerWindow").width()) / 2;//Get distance of left
+                var _top = (document.documentElement.clientHeight) * 0.15;//Get distance of top
+                $("#TrailerWindow").css({left: _left, top: _top});
+            }
+
+            $("button.close").click(function () {
+                $('video').trigger('pause');
+                $("#TrailerWindow").hide();//hide
+                $(".Layer").hide();//hide
+            });
+</script>
+    
+
+
+{% endblock %}

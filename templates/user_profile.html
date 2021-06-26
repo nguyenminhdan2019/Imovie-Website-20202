@@ -1,0 +1,534 @@
+{% extends "base.html" %}
+{% block mainbody %}
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+{% load static %}
+<link href="{% static "css/test.min.css" %}" rel="stylesheet" id="test-css">
+<link rel="stylesheet" type="text/css" href="{% static 'css/user-profile.css' %}"/>
+
+<main class="container bootdey">
+<main class="main-content p-5" role="main">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-user-profile">
+                    <div class="profile-page-left">
+                        <div class="row">
+                            <div class="col-lg-12 mb-4">
+                                <div class="profile-picture profile-picture-lg bg-gradient bg-primary mb-4">
+                                    {% if profile.profile_picture %}
+                                        <img src="{{ profile.profile_picture.url }}" width="44" height="44">
+                                    {% else %}
+                                        <img src="/media/image/avatar.png" width="44" height="44">
+                                    {% endif %}
+                                </div>
+                                {% if profile_flag == 1 %}
+                                    <a class="btn btn-primary btn-block btn-gradient waves-effect waves-light" href="{% url 'detail-edit-profile'  %}"> Edit Profile </a>
+                                {% else %}
+                                    {% if follow_flag == 1  %}
+                                        <a class="btn btn-primary btn-block btn-gradient waves-effect waves-light" id='follow' onclick='follow()'>Unfollow </a>
+                                    {% else %}
+                                        <a class="btn btn-primary btn-block btn-gradient waves-effect waves-light" id='follow' onclick='follow()'> Follow </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <h5 class="my-0">Followers</h5>
+                                <div class="h3 my-0">
+                                    <a id = 'count_followers'>10{{followers}}</a>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <h5 class="my-0">Following</h5>
+                                <div class="h3 my-0">
+                                    <a id = 'count_following'>10{{following}}</a>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                    {% if followers > 0 %}
+                    <div class="mt-3">
+                        <label class="tx-11 font-weight-bold mb-0 text-uppercase">Followers:</label>
+                        <h5>
+                        <div class="profile-page-block-outer clearfix">
+                        <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar0.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar2.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar4.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-secondary">
+                                    <img src="/media/image/avatar5.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar6.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar7.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-secondary">
+                                    <img src="/media/image/avatar8.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar11.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar12.jpeg" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-secondary">
+                                    <img src="/media/image/avatar14.jpeg" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar18.jpeg" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-secondary">
+                                    <img src="/media/image/avatar19.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar20.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-secondary">
+                                    <img src="/media/image/avtar24.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar2.png" width="44" height="44">
+                                </div>
+                            </div>
+                            <div class="profile-page-block">
+                                <div class="profile-picture bg-gradient bg-primary">
+                                    <img src="/media/image/avatar11.png" width="44" height="44">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if profile.bio is not None %}
+                    <div class="mt-3">
+                        <label class="tx-11 font-weight-bold mb-0 text-uppercase">About:</label>
+                        <p class="text-muted">{{user.profile.bio}}</p>
+                    </div>
+                    {% endif %}
+                    <div class="mt-3">
+                        <label class="tx-11 font-weight-bold mb-0 text-uppercase">Joined:</label>
+                        <p class="text-muted">{{profile.user.date_joined}}</p>
+                    </div>
+                    {% if profile.location is not None %}
+                    <div class="mt-3">
+                        <label class="tx-11 font-weight-bold mb-0 text-uppercase">Lives:</label>
+                        <p class="text-muted">{{profile.location}}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if profile.birthday is not None %}
+                    <div class="mt-3">
+                        <label class="tx-11 font-weight-bold mb-0 text-uppercase">Birthday:</label>
+                        <p class="text-muted">{{profile.birthday}}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if profile.gender == 'M' %}
+                    <div class="mt-3">
+                        <label class="tx-11 font-weight-bold mb-0 text-uppercase">Sex:</label>
+                        <p class="text-muted">Male</p>
+                    </div>
+                    {% else %}
+                    <div class="mt-3">
+                        <label class="tx-11 font-weight-bold mb-0 text-uppercase">Sex:</label>
+                        <p class="text-muted">Female</p>
+                    </div>
+                    {% endif %}
+                     <label class="tx-11 font-weight-bold mb-0 text-uppercase">Social Media:</label>
+                        <div class="mt-3 d-flex social-links">
+                            {% if profile.facebook_link is not None %}
+                            <a href="#" class="btn d-flex align-items-center justify-content-center border mr-2 btn-icon twitter">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                                </svg>
+                            </a>
+                            {% endif %}
+                            {% if profile.twitter_link is not None %}
+                            <a href="#" class="btn d-flex align-items-center justify-content-center border mr-2 btn-icon twitter">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-twitter" data-toggle="tooltip" title="" data-original-title="twitter.com/nobleui">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                                </svg>
+                            </a>
+                            {% endif %}
+                            {% if profile.instagram is not None %}
+                            <a href="#" class="btn d-flex align-items-center justify-content-center border mr-2 btn-icon instagram">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-instagram" data-toggle="tooltip" title="" data-original-title="instagram.com/nobleui">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                                </svg>
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <hr>
+                    </div>
+                    <div  class="profile-page-center">
+                        {% if profile.full_name is not None  %}
+                            <h3 class="card-user-profile-name" style="color : black ">{{profile.full_name}} </h3>
+                        {% endif %}
+
+                        <div class="comment-block">
+                            <div id="form-comment" class="form-group">
+                                {% if profile_flag > 0 %}
+                                    <textarea class="form-control" id="comment-textarea" rows="2" placeholder="How are you today ..."></textarea>
+                                {% else %}
+                                    <textarea class="form-control" id="comment-textarea" rows="2" placeholder="Say something for {{profile.user}}..."></textarea>
+                                {% endif %}
+                                <div class="media-feed-control clearfix">
+                                    <button onclick="comment()" type="button" class="btn btn-secondary btn-sm comment-reply float-right waves-effect waves-light">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <ul class="list-unstyled mt-5">
+                        {% for post in posts %}
+                            <li class="media mt-4">
+                                    <div class="profile-picture bg-gradient bg-primary mb-4">
+                                        <img src="{{post.author.profile.profile_picture.url}}" width="44" height="44">
+                                    </div>
+                                <div class="media-body">
+                                    <div class="media-title mt-0 mb-1">
+                                        <a href="{{post.author.profile.get_absolute_url}}">{{ post.author.username }}</a><small> {{ post.get_date }}</small>
+                                    </div>
+                                    {{ post.content }}
+                                    <div class="media-feed-control">
+                                        <a href="" id="likeButton">
+                                            <input type="hidden" name="likePostID" value="{{ post.id }}">
+                                            {% if  post.total_likes > 0 %}
+                                                <i class="batch-icon batch-icon-heart-full" ></i> Like <span id="count-likes{{ post.id }}"> ({{post.total_likes}}) </span>
+                                            {% else %}
+                                                <i class="batch-icon batch-icon-heart-full" ></i> Like <span id="count-likes{{ post.id }}"></span>
+                                            {% endif %}
+                                        </a>
+                                        <a onclick="show_block_reply({{post.id}})" href="#">
+                                            {% if post.total_comments > 0  %}
+                                                <i class="batch-icon batch-icon-speech-bubble-left-tip"></i> Comment <span id="count-comments{{ post.id }}"> ({{post.total_comments}}) </span>
+                                            {% else %}
+                                                <i class="batch-icon batch-icon-speech-bubble-left-tip"></i> Comment <span id="count-comments{{ post.id }}"> </span>
+                                            {% endif %}
+
+                                        </a>
+                                        <a href="" id="reportButton">
+                                            <input type="hidden" name="reportPostID" value="{{ post.id }}">
+                                            {% if request.user in post.reports.all %}
+                                                <i class="batch-icon batch-icon-flag"></i><span style="color: red" id="reports{{post.id}}"> Report </span>
+                                            {% else %}
+                                                <i class="batch-icon batch-icon-flag"></i><span id="reports{{post.id}}"> Report </span>
+                                            {% endif %}
+                                        </a>
+                                    </div>
+                                    <div class="media-body-reply-block" >
+                                        <ul class="list-unstyled">
+                                            {% for reply  in post.get_all_reply %}
+                                                <li class="media mt-4">
+                                                    <div class="profile-picture bg-gradient bg-primary mb-4">
+                                                        <img src="{{reply.author.profile.profile_picture.url}}" width="44" height="44">
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="media-title mt-0 mb-1">
+                                                            <a href="{{ reply.author.profile.get_absolute_url }}">{{ reply.author.username }}</a> <small> {{ reply.get_date }}</small>
+                                                        </div>
+                                                        {{reply.content}}
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                            <li hidden class="comment-reply-block mt-4" id="block-reply-{{post.id}}" >
+                                                <form method="POST" class="form-reply" enctype="multipart/form-data">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" class="postID" name="postID" value="{{ post.id }}">
+                                                    <textarea class="form-control comment-reply-textarea" name="content" rows="2" placeholder="Reply post here ..."> </textarea>
+                                                    <button type="submit" class="btn btn-secondary btn-sm comment-reply float-right waves-effect waves-light"> Reply </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>          
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</main>
+    <script>
+        function show_block_reply(post_id){
+            event.preventDefault();
+            var id = '#block-reply-' + post_id;
+            $(id).show();
+        }
+        function follow(){
+            var user2 = '{{profile.user.id}}';
+            $.ajax({
+                type : "POST",
+                url : "{% url 'follow' %}",
+                data : {user2 : user2},
+                processData: "application/json"
+            }).done(function(data){
+                if(data.mess ==='follow'){
+                    $('#follow').text('Unfollow');
+                    count_followers = parseInt($('#count_followers').text()) +1;
+                    $('#count_followers').text(count_followers.toString());
+
+                }
+                if(data.mess ==='unfollow'){
+                    $('#follow').text('Follow');
+                    count_followers = parseInt($('#count_followers').text()) -1;
+                    $('#count_followers').text(count_followers.toString());
+                }
+                
+                
+                console.log(data);
+            })
+        };
+
+        function comment() {
+            var content = $('#comment-textarea').val();
+            console.log(content);
+
+            if (content == '') {
+                Swal.fire('Comments cannot be empty');
+                return
+            }
+            ;
+            $.ajax({
+                type: "POST",
+                // bo sung dau gach cheo moi duoc
+                url: "",
+                data: {content: content, type : 'comment'},
+                processData: "application/json",
+                dataType: "json",
+                beforeSend:function (xhr,settings) {
+                    xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                },
+            }).done(function (data) {
+                console.log(data);
+                document.getElementById("comment-textarea").value = '' ;
+
+                 $(".list-unstyled.mt-5").prepend(
+                      '<li class="media mt-4">'+
+                            '<div class="profile-picture bg-gradient bg-primary mb-4">' +
+                                '<img src="' + data.send_user_avatar +'"'  + 'width="44" height="44">' +
+                            '</div>' +
+                            '<div class="media-body">' +
+                                '<div class="media-title mt-0 mb-1">' +
+                                    '<a href=' +'"'+ data.send_user_url + '"' +'>'  + data.send_user + '</a>' +  '<small>' + '   ' +    data.date_posted + '</small>'+
+                                '</div>' +
+                                data.content +
+                                '<div class="media-feed-control">' +
+                                    '<a href="#" id="likeButton">'+
+                                        '<input type="hidden" name="likePostID" value="' + data.post_id + '">' +
+                                        '<i class="batch-icon batch-icon-heart-full"></i>' +'Like' +
+                                        '<span id="count-likes' + data.post_id+ '">' +' '+  '</span>' +
+                                    '</a>'+
+                                    '<a onclick="show_block_reply('+ data.post_id+ ')" href="#">'+
+                                        '<i class="batch-icon batch-icon-speech-bubble-left-tip"></i>' + 'Comment' + '<span id="count-comments' + data.post_id + '">'+ ' '+ '</span>' +
+                                    '</a>' +
+                                    '<a href="" id="reportButton">' +
+                                                '<input type="hidden" name="reportPostID" value="'+ data.post_id + '">' +
+                                                '{% if request.user in post.reports.all %}' +
+                                                    '<i class="batch-icon batch-icon-flag"></i><span style="color: red" id="reports' + data.post_id +'"> Report </span>' +
+                                                '{% else %}'+
+                                                    '<i class="batch-icon batch-icon-flag"></i><span id="reports'+ data.post_id + '"> Report </span>' +
+                                                '{% endif %}'+
+
+                                    '</a>'+
+                                '</div>'+
+                                '<div class="media-body-reply-block">' +
+                                            '<ul class="list-unstyled">' +
+                                                '<li hidden class="comment-reply-block mt-4" id="block-reply-' +data.post_id + '" >'+
+                                                        '<form method="POST" class="form-reply" enctype="multipart/form-data">' +
+                                                            '<input type="hidden" class="postID" name="postID" value="' + data.post_id +  '">' +
+                                                            '<textarea class="form-control comment-reply-textarea" name="content" rows="2" placeholder="Reply post here .....">' + '</textarea>' +
+                                                            '<button type="submit" class="btn btn-secondary btn-sm comment-reply float-right waves-effect waves-light"> Reply </button>'+
+                                                        '</form>' +
+                                                '</li>'+
+                                            '</ul>'+
+                                '</div>'+
+                            '</div>'+
+                        '</li>'
+                );
+                
+                // location.reload();
+
+
+            });
+
+        };
+
+
+        $(document).on('submit', '.form-reply', function (event){
+                event.preventDefault();
+                //remember the form element
+                var $form = $(this);
+
+
+
+                // get dom by name
+                var $content = $form.find("textarea[name='content']");
+                // get dome by id
+                var $postID = $form.find(".postID");
+
+                var content =  $form.find("textarea[name='content']").val();
+                var postID =   $form.find("input[name='postID']").val();
+
+                console.log(content);
+                console.log(postID);
+
+                // now do ajax
+                $.ajax({
+                url: "",
+                type: 'POST',
+                datatype: 'json',
+                processData: "application/json",
+                data: {
+                    content: content,
+                    postID: postID,
+                    type: 'reply',
+                },
+                beforeSend:function (xhr,settings) {
+                    console.log("{{ csrf_token }}");
+                    xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                },
+            }).done(function (data){
+                $content.val('');
+                console.log(data);
+                $form.parent().parent().prepend(
+                     '<li class="media mt-4">'+
+                    '<div class="profile-picture bg-gradient bg-primary mb-4">'+
+                    '<img src="' +data.send_user_avatar + '"width="44" height="44">'+
+                    '</div>'+
+                    '<div class="media-body">'+
+                    '<div class="media-title mt-0 mb-1">'+
+                    '<a href="' +data.send_user_url + '">' + data.send_user+ '</a>' + '<small>' + data.date_posted + '</small>'+
+                    '</div>'+ data.content + '</div>' + '</li>')
+                                                        
+
+                var countCommentID = '#count-comments' + data.to_post;
+                $(countCommentID).html(' (' +data.count_comments +')' );
+
+
+
+                {#location.reload();#}
+
+            });
+            });
+
+         $(document).on('click', '#likeButton', function (event) {
+                event.preventDefault();
+                var postID  = $(this).find("input[name='likePostID']").val();
+                var likeID = '#count-likes' + postID
+
+                $.ajax({
+                    url : "{% url 'like-post'%}",
+                    type: 'POST',
+                    datatype: 'json',
+                    processData: "application/json",
+                    data: {
+                    postID: postID,
+                    type: 'like',
+                    status : 'True',
+                },
+                beforeSend:function (xhr,settings) {
+                    console.log("{{ csrf_token }}");
+                    xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                },
+            }).done(function (data) {
+                    if(data.type==-1){
+                        alert('erorr !');
+                    }
+                    else {
+
+                        console.log(data.count_likes);
+                        if(data.count_likes > 0){
+                            $(likeID).html(' ('+data.count_likes + ')');
+                        }
+                        else{
+                            $(likeID).html('');
+                        }
+
+                    }
+
+
+                });
+         });
+
+
+          $(document).on('click', '#reportButton', function (event) {
+                event.preventDefault();
+                var postID  = $(this).find("input[name='reportPostID']").val();
+                var reportID = '#reports' + postID;
+                console.log(reportID);
+                $.ajax({
+                    url : "{% url 'report-post'%}",
+                    type: 'POST',
+                    datatype: 'json',
+                    processData: "application/json",
+                    data: {
+                    postID: postID,
+                    type: 'report',
+                    },
+                    beforeSend:function (xhr,settings) {
+                    console.log("{{ csrf_token }}");
+                    xhr.setRequestHeader("X-CSRFToken","{{ csrf_token }}");
+                },
+                }).done(function (data) {
+                    if(data.type==-1){
+                        alert('erorr !');
+                    }
+                    else {
+                        if(data.type=='report'){
+                            $(reportID).css("color", "red");
+                        }
+                        else {
+                            $(reportID).css("color", "black");
+                        }
+
+                    }
+                });
+          });
+
+    </script>
+
+            
+{% endblock mainbody %}
