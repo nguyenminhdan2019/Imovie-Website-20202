@@ -17,12 +17,12 @@ Trong version hiện tại, Các chức năng sau đã được triển khai:
 1. [Data and Database](#data-and-database)
 2. [Search Engine and Cache](#search-engine)
 3. [Recommender](#recommender)
-
+4. [Demo][#demo]
 
 <a name="data-and-database"></a>
 
 ## Data and Database 
-Có hơn 5000 thông tin bộ phim được public tại [movie dataset](https://www.kaggle.com/oxanozaep/imdb-eda/data). Tôi đã sử dụng thư viện [imdbpie](https://pypi.org/project/imdbpie/) để lấy và xử lý chúng.Hiện tại tôi đang sử dụng hơn ** 1000 phim ** trong database. 
+Có hơn 5000 thông tin bộ phim được public tại [movie dataset](https://www.kaggle.com/oxanozaep/imdb-eda/data). Tôi đã sử dụng thư viện [imdbpie](https://pypi.org/project/imdbpie/) để lấy và xử lý chúng.Hiện tại tôi đang sử dụng hơn **1000phim** trong database. 
 
 <a name="search-engine"></a>
 
@@ -37,13 +37,22 @@ Có hơn 5000 thông tin bộ phim được public tại [movie dataset](https:/
 ## Recommender
 
 **Content Based**
-Sử dụng **Content Based** để gợi ý các phim dựa theo lịch sử yêu thích của người dùng. Tôi sử dụng tập các tag được cồng đồng gắn vào phim từ dữ liệu [**Tag movie**](https://grouplens.org/datasets/movielens/25m/).
 
-Tôi sử dụng ** Jaccard Index ** và ** Cosine Similarity ** để tính toán độ tương đồng của các tập các tag gắn vào phim. Trong trường hợp sử dụng ** Cosine Similarity ** tôi đã vector hoá các bộ phim bằng cách sử dụng **Doc2Vec** thông qua thư viện **Gensim**
+Sử dụng **Content Based** để gợi ý các phim dựa theo lịch sử yêu thích của người dùng. Tôi sử dụng tập các tag được cồng đồng gắn vào phim từ dữ liệu [**Movielens 25m**](https://grouplens.org/datasets/movielens/25m/).
+
+Tôi sử dụng **Jaccard Index** và **Cosine Similarity** để tính toán độ tương đồng của các tập các tag gắn vào phim. 
+
+Trong trường hợp sử dụng ** Cosine Similarity ** tôi đã vector hoá các bộ phim bằng cách sử dụng **Doc2Vec** thông qua thư viện **Gensim**
 
 **Collaborative Filtering**
 Tôi sử dụng lọc cộng tác để gợi ý người dùng theo dõi những người khác. Bằng cách tìm K người dùng tương đồng nhất với người dùng cần giới thiệu, sau đó từ danh sách theo dõi của K người đó, gợi ý cho người dùng cần giới thiệu.
 
 **Recommend Search**
 Gợi ý tìm kiếm thông qua các phiên tìm kiếm của người dùng khác trong lịch sử, nếu tồn tại phiên tìm kiếm tương đồng và có kết quả, gợi ý cho người dùng.
+
+<a name="demo"></a>
+
+Dưới đây là các link demo chi tiết các nhóm chức năng :
+1. Nhóm chức năg Quản trị viên [Admin Site](https://www.youtube.com/watch?v=eV8ekPgnYhs)
+2. Nhóm chức năng Thành viên [User](https://www.youtube.com/watch?v=iVZ4qBHkLj0)
 
