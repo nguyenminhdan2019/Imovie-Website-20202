@@ -44,7 +44,7 @@ Sử dụng **Content Based** để gợi ý các phim dựa theo lịch sử y�
 
 Tôi sử dụng **Jaccard Index** và **Cosine Similarity** để tính toán độ tương đồng của các tập các tag gắn vào phim. 
 
-Trong trường hợp sử dụng ** Cosine Similarity ** tôi đã vector hoá các bộ phim bằng cách sử dụng **Doc2Vec** thông qua thư viện **Gensim**
+Trong trường hợp sử dụng **Cosine Similarity** tôi đã vector hoá các bộ phim bằng cách sử dụng **Doc2Vec** thông qua thư viện **Gensim**
 
 **Collaborative Filtering**
 Tôi sử dụng lọc cộng tác để gợi ý người dùng theo dõi những người khác. Bằng cách tìm K người dùng tương đồng nhất với người dùng cần giới thiệu, sau đó từ danh sách theo dõi của K người đó, gợi ý cho người dùng cần giới thiệu.

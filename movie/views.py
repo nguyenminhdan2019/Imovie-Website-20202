@@ -61,6 +61,7 @@ class V_WatchedMovie(View):
         unwatched_movies = set(search_index.data_in_memory['movie_list']) - watched_movies
         
         data = {}
+        recommend = V_Recommend()
         # add you may also like movie - recommend here 
 
         data['top_movie'] = top_movie(self, request)
@@ -83,7 +84,7 @@ class V_WatchedMovie(View):
                 if movie not in watched_movies:
                     recommend_for_seen_movie.append({'movieid': movie.movieid, 'poster': movie.poster})
         if len(list_movie_id) == 1:
-            recommend_movie = get_recommend_by_jaccard(list_movie_id[0])
+            recommend_movie = recommend.get_recommend_by_jaccard(list_movie_id[0])
             for movieid in recommend_movie:
                 recommend.append(Movie.objects.get(movieid=movieid))
             for movie in recommend:
@@ -137,6 +138,7 @@ class V_ExpectedMovie(View):
         unwatched_movies = set(search_index.data_in_memory['movie_list']) - watched_movies
         
         data = {}
+        recommend = V_Recommend()
         # add you may also like movie - recommend here 
 
         data['top_movie'] = top_movie(self, request)
@@ -159,7 +161,7 @@ class V_ExpectedMovie(View):
                 if movie not in watched_movies:
                     recommend_for_expect_movie.append({'movieid': movie.movieid, 'poster': movie.poster})
         if len(list_movie_id) == 1:
-            recommend_movie = get_recommend_by_jaccard(list_movie_id[0])
+            recommend_movie = recommend.get_recommend_by_jaccard(list_movie_id[0])
             for movieid in recommend_movie:
                 recommend.append(Movie.objects.get(movieid=movieid))
             for movie in recommend:
@@ -705,65 +707,6 @@ class V_Search(View):
         return JsonResponse(data)
 
 
-def expect(self, request):
-    if request.POST:
-        try:
-            d = Expect.objects.get(username=request.user.get_username(), movieid_id=movie_id)
-            d.delete()
-        except:
-            return render(self, request, '404.html')
-    movie_dict = search_index.data_in_memory['movie_dict']
-    records = Expect.objects.filter(username=request.user.get_username())
-    movies = []
-    watched_movies = set([movie_dict[movie.movieid_id] for movie in records ] +
-                        [movie_dict[movie.movieid_id] for movie in Expect.objects.filter(username=request.user.username)])
-    unwatched_movies = set(search_index.data_in_memory['movie_list']) - watched_movies
-    
-    data = {}
-    # add you may also like movie - recommend here 
-
-    data['top_movie'] = top_movie(self, request)
-    data['action_movie'] = action_movie(self, request)
-    data['comedy_movie'] = comedy_movie(self, request)
-    list_movie_id = []
-    #id movie
-    recommend_movie = []
-    recommend = []
-    recommend_for_expect_movie = []
-    for record in records:
-        movie_id = str(record).split('|')[1]
-        movies.append(Movie.objects.get(movieid=movie_id))
-        list_movie_id.append(movie_id)
-    if len(list_movie_id) >= 2:
-        recommend_movie = get_recommend_by_cosine(list_movie_id)
-        for movieid in recommend_movie:
-            recommend.append(Movie.objects.get(movieid=movieid))
-        for movie in recommend:
-            if movie not in watched_movies:
-                recommend_for_expect_movie.append({'movieid': movie.movieid, 'poster': movie.poster})
-    if len(list_movie_id) == 1:
-        recommend_movie = get_recommend_by_jaccard(list_movie_id[0])
-        for movieid in recommend_movie:
-            recommend.append(Movie.objects.get(movieid=movieid))
-        for movie in recommend:
-            if movie not in watched_movies:
-                recommend_for_expect_movie.append({'movieid': movie.movieid, 'poster': movie.poster})
-    if len(list_movie_id) == 0:
-        for movie in unwatched_movies:
-                recommend_for_expect_movie.append({'movieid': movie.movieid, 'poster': movie.poster})
-                if len(recommend_for_expect_movie) == 11:
-                    break
-    if len(recommend_for_expect_movie) > 11:
-        recommend_for_expect_movie = [recommend_for_expect_movie[i] for i in random.sample(range(len(recommend_for_expect_movie)), 11)]
-
-    
-    data['recommend_movies'] = recommend_for_expect_movie
-    data['items'] = movies
-    data['number_expect_movie'] = len(movies)
-    
-    
-    return render(self, request, 'expect.html', data)
-
 
 class V_Recommend(View):
     def getTopMovie(self, request):
@@ -815,6 +758,43 @@ class V_Recommend(View):
         except:
             list_movie = []
         return list_movie
+    
+
+    def get_recommend_by_jaccard(self, movieid):
+        # get data file
+        mv_genres = pd.read_csv('data/data_movie.csv')
+        mv_tags = pd.read_csv('data/genome_scores_data.csv')
+        mv_tags_desc = pd.read_csv('data/genome-tags.csv')
+
+        print(mv_tags.head())
+        print(mv_genres.head())
+        print(mv_tags_desc.head())
+
+        movie = {}
+        movie = pd.DataFrame(data=movie)
+
+        movie['imdbId'] = mv_genres['movieid']
+        movie['movieId'] = mv_genres['movielenid']
+
+        #prepare
+        mv_tags_denorm = mv_tags.merge(mv_tags_desc, on='tagId').merge(movie, on='movieId')
+        mv_tags_denorm['relevance_rank'] = mv_tags_denorm.groupby("movieId")["relevance"].\
+            rank(method="first",ascending=False).astype('int64')
+
+        mv_tags_list = mv_tags_denorm[mv_tags_denorm.relevance_rank <= 50].groupby(['movieId', 'imdbId'])['tag'].apply(lambda x: ','.join(x)).reset_index()
+        mv_tags_list['tag_list'] = mv_tags_list.tag.map(lambda x: x.split(','))
+
+        target_movie_id = movieid
+
+        target_tag_list = mv_tags_list[mv_tags_list.imdbId == target_movie_id].tag_list.values[0]
+        mv_tags_list_sim = mv_tags_list[['movieId', 'imdbId', 'tag_list', 'tag']]
+        mv_tags_list_sim['jaccard_sim'] = mv_tags_list_sim.tag_list.map(
+            lambda x: len(set(x).intersection(set(target_tag_list))) / len(set(x).union(set(target_tag_list))))
+        # print(f'Movies most similar to {target_movie_id} based on tags:')
+        recommend_movie = mv_tags_list_sim.sort_values(by='jaccard_sim', ascending=False).head(12)['imdbId']
+        recommend_movie = recommend_movie[1:]
+        return list(recommend_movie)
+
 
     def get_recommend_by_cosine(list_movie_id):
         mv_genres = pd.read_csv('data/data_movie.csv')
