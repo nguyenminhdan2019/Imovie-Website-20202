@@ -24,8 +24,9 @@ urlpatterns = [
     path('detail/<int:profile_id>/', V_Profile.detailUser, name='detail'),
 
     # newfeed
-    path('comunity/', views.comunity, name='comunity'),
+    path('comunity/', V_NewFeed.comunity, name='comunity'),
     path('API/post_now/', V_NewFeed.createPostNow, name='post-now'),
+    path('API/follow_now/', V_NewFeed.followNow, name='follow-now'),
 
     # API POST
     path('API/like_post/', V_Post.likePost, name='like-post'),

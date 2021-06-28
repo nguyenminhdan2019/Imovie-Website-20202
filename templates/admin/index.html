@@ -675,7 +675,7 @@ demo = {
     
     function loadChart(myChartData, type){
                 $.ajax({
-                    url : "/user/getdatachart1/",
+                    url : "/user/API/get_data_chart_user_register/",
                     type: 'GET',
                     data : {'type':type},
                     datatype: 'json',
@@ -692,7 +692,7 @@ demo = {
 
     function load_chart_user(chart){
               $.ajax({
-                    url : "/user/get_chart_user/",
+                    url : "/user/API/get_data_chart_user_activity/",
                     type: 'GET',
                 }).done(function (message) {
                         if(message.mess == 'success'){
@@ -711,7 +711,7 @@ demo = {
     function load_chart_movie_rate(chart){
 
       $.ajax({
-                    url : "/movie/get_chart_movie_rate/",
+                    url : "/movie/API/get_chart_movie_rate/",
                     type: 'GET',
                 }).done(function (message) {
                         if(message.mess == 'success'){
@@ -728,7 +728,7 @@ demo = {
 
     function load_chart_post(chart){
       $.ajax({
-                    url : "/user/get_chart_post/",
+                    url : "/user/API/get_data_chart_post/",
                     type: 'GET',
                 }).done(function (message) {
                         if(message.mess == 'success'){
